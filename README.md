@@ -1,13 +1,19 @@
 # TiQuAD: Tigrinya Question Answering Dataset
 
-This repository corresponds to the paper [Question-Answering in a Low-resourced Language: Benchmark Dataset and Models for Tigrinya](https://aclanthology.org/2023.acl-long.661/), published at the ACL 2023 conference in Toronto, Canada. Selected for the Outstanding Paper Award.
+[![Paper](https://img.shields.io/badge/Paper-ACL%202023-blue)](https://aclanthology.org/2023.acl-long.661/)
+[![Dataset](https://img.shields.io/badge/🤗%20Dataset-TiQuAD-yellow)](https://huggingface.co/datasets/fgaim/tiquad)
+[![Dataset](https://img.shields.io/badge/🤗%20Dataset-Tigrinya--SQuAD-orange)](https://huggingface.co/datasets/fgaim/tigrinya-squad)
+[![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
+
+This repository accompanies our ACL 2023 paper **"Question-Answering in a Low-resourced Language: Benchmark Dataset and Models for Tigrinya"**. Selected for the Outstanding Paper Award.
 
 ## Overview
 
 Question-Answering (QA) has seen significant advances recently, achieving near human-level performance over some benchmarks. However, these advances focus on high-resourced languages such as English, while the task remains unexplored for most other languages, mainly due to the lack of annotated datasets. This work presents `TiQuAD`, the first human annotated QA dataset for Tigrinya, an East African language. The dataset contains 10.6K question-answer pairs (6.5K unique questions) spanning 572 paragraphs extracted from 290 news articles on various topics. The paper presents the dataset construction method, which is applicable to building similar resources for related languages.
+
 In addition to the gold-standard TiQuAD, we develop `Tigrinya-SQuAD`, a silver dataset used as additional training resource and created by machine translating and filtering the English SQuAD v1.1 dataset.
+
 We present comprehensive experiments and analyses of several resource-efficient approaches to QA, including monolingual, cross-lingual, and multilingual setups, along with comparisons against machine-translated silver data. Our strong baseline models reach 81% in the F1 score, while the estimated human performance is 92%, indicating that the benchmark presents a good challenge for future work.
-The two datasets are made available for research purposes. You can read the paper for more details.
 
 ## Datasets
 
@@ -15,26 +21,28 @@ The two datasets are made available for research purposes. You can read the pape
 
 Human annotated question-answering dataset with <*Paragraph*, *Question*, *Answer*> entries.
 
-TiQuAD can be downloaded from [HuggingFace Hub](https://huggingface.co/datasets/fgaim/tiquad).
+**📥 Download** via [HuggingFace Hub](https://huggingface.co/datasets/fgaim/tiquad)
 
 | **Split** | **Articles** | **Paragraphs** | **Questions** | **Answers** |
 |-----------|--------------|----------------|---------------|-------------|
 | Train     | 205          | 408            | 4,452         | 4,454       |
 | Dev       | 43           | 76             | 934           | 2,805       |
-| Test      | 42           | 96             | 1,122         | 3,378       |
+| Test*     | 42           | 96             | 1,122         | 3,378       |
 | **Total** | **290**      | **572**        | **6,508**     | **10,637**  |
 
 *Data Statistics of TiQuAD: The number of Articles, Paragraphs, Questions, and Answers. The dataset is partitioned by articles.*
+
+> **Note:** *Test set is not publicly available to maintain evaluation integrity. See [TiQuAD Test Set Access](#tiquad-test-set-access) section below.*
 
 <img src="assets/tiquad_construction.jpg" alt="TiQuAD Dataset Construction Pipeline" style="max-width: 650px;">
 
 TiQuAD Dataset Construction Pipeline. The five-stage process includes article collection, context selection, question-answer pair annotation, additional answers annotation for evaluation sets, and quality-focused post-processing.
 
-### 2. Tigrinya-SQuAD v1
+### 2. Tigrinya-SQuAD v1 (Extra Training Data)
 
-The training split of the English SQuAD 1.1 dataset machine translated and filtered in to Tigrinya.
+The training split of the English SQuAD 1.1 dataset machine translated and filtered into Tigrinya.
 
-Tigrinya-SQuAD can be downloaded from [HuggingFace Hub](https://huggingface.co/datasets/fgaim/tigrinya-squad).
+**📥 Download** via [HuggingFace Hub](https://huggingface.co/datasets/fgaim/tigrinya-squad)
 
 | **Split** | **Articles** | **Paragraphs** | **Questions** | **Answers** |
 |-----------|--------------|----------------|---------------|-------------|
@@ -44,10 +52,9 @@ Tigrinya-SQuAD can be downloaded from [HuggingFace Hub](https://huggingface.co/d
 
 <img src="assets/tigrinya_squad_construction.jpg" alt="Tigrinya-SQuAD Dataset Construction Pipeline" style="max-width: 650px;">
 
-## How to load TiQuAD and Tigrinya-SQuAD
+## Loading TiQuAD and Tigrinya-SQuAD Datasets
 
 ```python
-
 from datasets import load_dataset
 
 # Load TiQuAD
@@ -59,6 +66,8 @@ tigrinya_squad = load_dataset("fgaim/tigrinya-squad", trust_remote_code=True)
 print(tigrinya_squad)
 ```
 
+**TiQuAD dataset:**
+
 ```python
 DatasetDict({
     train: Dataset({
@@ -69,9 +78,16 @@ DatasetDict({
         features: ['id', 'title', 'context', 'question', 'answers'],
         num_rows: 934
     })
-    test: Dataset({
+})
+```
+
+**Tigrinya-SQuAD dataset:**
+
+```python
+DatasetDict({
+    train: Dataset({
         features: ['id', 'title', 'context', 'question', 'answers'],
-        num_rows: 1121
+        num_rows: 46737
     })
 })
 ```
@@ -88,17 +104,30 @@ A sample entry from TiQuAD validation set:
 }
 ```
 
-> Note the samples in the `validation` and `test` sets have upto three answer annotations by different annotators.
+> **Note:** Samples in the `validation` set have up to three answers labeled by different annotators.
+
+## TiQuAD Test Set Access
+
+To maintain evaluation integrity and avoid data contamination, **the TiQuAD test set is not publicly available**.
+
+**Researchers** looking to access the test set for evaluation purpose, please email the first author of the paper, with the following details:
+
+- **Subject**: TiQuAD Test Set Request  
+- Your full name and affiliation
+- Research purpose and usage plan
+- Acknowledgment that the dataset will be used for evaluation only
+
+We review requests to ensure legitimate research use while maintaining benchmark integrity.
 
 ## Experimental Results
 
-Datasets used in the experiments:
+### Datasets Used
 
-- MT: Tigrinya-SQuAD (Machine Translated SQuAD v1.1 train set) -- (Language: Tigrinya)
-- Native: TiQuAD train set -- (Language: Tigrinya)
-- SQuAD: SQuAD v1.1 train set -- (Language: English)
+- **MT**: Tigrinya-SQuAD (Machine Translated SQuAD v1.1 train set) — *Tigrinya*
+- **Native**: TiQuAD train set — *Tigrinya*  
+- **SQuAD**: SQuAD v1.1 train set — *English*
 
-Pre-trained language models used in our experiments:
+### Pre-trained Language Models
 
 | **Model** | **Layers** | **AH** | **Params** | **Lang.** | **PT Tigrinya** |
 |-----------|------------|----------------|----------------|---------------|------------------|
@@ -106,7 +135,7 @@ Pre-trained language models used in our experiments:
 | [tiroberta-base](https://huggingface.co/fgaim/tiroberta-base) | 12 | 12 | 125M | 1 | yes |
 | [afriberta_base](https://huggingface.co/castorini/afriberta_base) | 8 | 6 | 112M | 11 | yes |
 | [xlm-roberta-base](https://huggingface.co/FacebookAI/xlm-roberta-base) | 12 | 12 | 278M | 100 | no |
-| * [xlm-roberta-large](https://huggingface.co/FacebookAI/xlm-roberta-large) | 24 | 16 | 560M | 100 | no |
+| [xlm-roberta-large](https://huggingface.co/FacebookAI/xlm-roberta-large) | 24 | 16 | 560M | 100 | no |
 
 ```text
                                                             ╭───────────────────┬─────────────────╮
@@ -151,7 +180,7 @@ Pre-trained language models used in our experiments:
 ╰────┴─────────────────┴───────────────────┴────────┴───────┴─────────┴─────────┴────────┴────────╯
 ```
 
-The experiments on the xlm-roberta-large were added after the paper was published, and it outperforms other models mainly due to it size (parameters), showing a successful transfer capability of fine-tuned multilingual models with minimal or zero exposure to the target language during pre-training.
+The experiments on xlm-roberta-large were added after the paper was published. It outperforms other models mainly due to its larger size (parameters), showing successful transfer capability of fine-tuned multilingual models with minimal or zero exposure to the target language during pre-training.
 
 ## Citation
 
@@ -170,6 +199,12 @@ This work can be cited as follows:
     pages = "11857--11870",
 }
 ```
+
+## Acknowledgments
+
+- Native Tigrinya speakers who contributed to the annotation process of TiQuAD
+- Hadas Ertra newspaper and Eritrean Ministry of Information ([shabait.com](https://shabait.com)) for source articles
+- The SQuAD team for the foundational work used as source for Tigrinya-SQuAD.
 
 ## License
 
