@@ -5,7 +5,7 @@
 [![Dataset](https://img.shields.io/badge/🤗%20Dataset-Tigrinya--SQuAD-orange)](https://huggingface.co/datasets/fgaim/tigrinya-squad)
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC%20BY--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/)
 
-This repository accompanies our ACL 2023 paper **"Question-Answering in a Low-resourced Language: Benchmark Dataset and Models for Tigrinya"**. Selected for the Outstanding Paper Award.
+This repository accompanies our ACL 2023 paper [**"Question-Answering in a Low-resourced Language: Benchmark Dataset and Models for Tigrinya"**](https://aclanthology.org/2023.acl-long.661/). Selected for the Outstanding Paper Award.
 
 ## Overview
 
@@ -54,21 +54,19 @@ The training split of the English SQuAD 1.1 dataset machine translated and filte
 
 ## Loading TiQuAD and Tigrinya-SQuAD Datasets
 
+**TiQuAD dataset:**
+
 ```python
 from datasets import load_dataset
 
 # Load TiQuAD
 tiquad = load_dataset("fgaim/tiquad", trust_remote_code=True)
 print(tiquad)
-
-# Load Tigrinya-SQuAD
-tigrinya_squad = load_dataset("fgaim/tigrinya-squad", trust_remote_code=True)
-print(tigrinya_squad)
 ```
 
-**TiQuAD dataset:**
+Output:
 
-```python
+```text
 DatasetDict({
     train: Dataset({
         features: ['id', 'title', 'context', 'question', 'answers'],
@@ -84,6 +82,16 @@ DatasetDict({
 **Tigrinya-SQuAD dataset:**
 
 ```python
+from datasets import load_dataset
+
+# Load Tigrinya-SQuAD
+tigrinya_squad = load_dataset("fgaim/tigrinya-squad", trust_remote_code=True)
+print(tigrinya_squad)
+```
+
+Output:
+
+```text
 DatasetDict({
     train: Dataset({
         features: ['id', 'title', 'context', 'question', 'answers'],
@@ -92,7 +100,7 @@ DatasetDict({
 })
 ```
 
-A sample entry from TiQuAD validation set:
+**A sample entry from TiQuAD validation set:**
 
 ```json
 {
@@ -104,7 +112,7 @@ A sample entry from TiQuAD validation set:
 }
 ```
 
-> **Note:** Samples in the `validation` set have up to three answers labeled by different annotators.
+> **Note:** Samples in the `validation` and `test` sets of TiQuAD have up to three answers labeled by different annotators.
 
 ## TiQuAD Test Set Access
 
@@ -121,12 +129,6 @@ We review requests to ensure legitimate research use while maintaining benchmark
 
 ## Experimental Results
 
-### Datasets Used
-
-- **MT**: Tigrinya-SQuAD (Machine Translated SQuAD v1.1 train set) — *Tigrinya*
-- **Native**: TiQuAD train set — *Tigrinya*  
-- **SQuAD**: SQuAD v1.1 train set — *English*
-
 ### Pre-trained Language Models
 
 | **Model** | **Layers** | **AH** | **Params** | **Lang.** | **PT Tigrinya** |
@@ -136,6 +138,14 @@ We review requests to ensure legitimate research use while maintaining benchmark
 | [afriberta_base](https://huggingface.co/castorini/afriberta_base) | 8 | 6 | 112M | 11 | yes |
 | [xlm-roberta-base](https://huggingface.co/FacebookAI/xlm-roberta-base) | 12 | 12 | 278M | 100 | no |
 | [xlm-roberta-large](https://huggingface.co/FacebookAI/xlm-roberta-large) | 24 | 16 | 560M | 100 | no |
+
+### Training Datasets
+
+- **MT**: Tigrinya-SQuAD (Machine Translated SQuAD v1.1 train set) — *Tigrinya*
+- **Native**: TiQuAD train set — *Tigrinya*  
+- **SQuAD**: SQuAD v1.1 train set — *English*
+
+### Results of Models and Mix of Dataset
 
 ```text
                                                             ╭───────────────────┬─────────────────╮
@@ -181,6 +191,55 @@ We review requests to ensure legitimate research use while maintaining benchmark
 ```
 
 The experiments on xlm-roberta-large were added after the paper was published. It outperforms other models mainly due to its larger size (parameters), showing successful transfer capability of fine-tuned multilingual models with minimal or zero exposure to the target language during pre-training.
+
+## TiQuAD Evaluation
+
+We provide the official evaluation script `evaluate-tiquad.py` for computing TiQuAD benchmark scores. The script supports evaluation against both the HuggingFace dataset and local JSON files. Install dependencies by running `pip install datasets numpy`.
+
+The script report the following metrics:
+
+- **Exact Match (EM)**: Percentage of predictions that match ground truth exactly
+- **Token-level F1**: F1 score computed over tokens
+- **Multi-reference handling**: Max score across multiple reference answers
+
+### Predictions File Format
+
+Your predictions file should be a JSON file with question IDs as keys and predicted answer texts as values:
+
+```json
+{
+  "5dda7d3e-...": "ጋንታ ፖሊስ",
+  ...
+}
+```
+
+### Usage Examples
+
+```bash
+# Evaluate against HuggingFace dataset (specific split)
+python evaluate-tiquad.py predictions.json --use-hf-dataset --split validation
+
+# Evaluate against a local JSON file (TiQuAD/SQuAD format)
+python evaluate-tiquad.py predictions.json --eval-set-path eval-set-v1.json
+```
+
+Add `--verbose` options to print out more details.
+
+**Sample Output:**
+
+```text
+Loading predictions from: predictions.json
+Loading validation set from HF dataset...
+Computing evaluation scores...
+
+===================================
+TiQuAD EVALUATION RESULTS
+===================================
+Exact Match (EM): 0.6542 (65.42%)
+F1 Score:         0.7321 (73.21%)
+Questions evaluated: 934
+===================================
+```
 
 ## Citation
 
